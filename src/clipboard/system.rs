@@ -13,9 +13,10 @@ impl ClipboardCommandRunner for SystemCommandRunner {
     }
 
     fn run_with_stdin(&self, tool: ClipboardTool, stdin: &str) -> Result<(), ClipboardError> {
-        let mut child = Command::new(tool.name)
-            .args(tool.args)
-            .stdin(Stdio::piped())
+        let mut command = Command::new(tool.name);
+        command.args(tool.args).stdin(Stdio::piped());
+        detach_from_session(&mut command);
+        let mut child = command
             .spawn()
             .map_err(|err| ClipboardError::SpawnFailed {
                 tool: tool.name.to_string(),
@@ -47,3 +48,22 @@ impl ClipboardCommandRunner for SystemCommandRunner {
         }
     }
 }
+
+/// Runs the clipboard tool in its own session so tools that keep serving the
+/// selection after exit (e.g. `wl-copy`) survive the picker tab closing.
+#[cfg(unix)]
+fn detach_from_session(command: &mut Command) {
+    use std::os::unix::process::CommandExt;
+    // SAFETY: `setsid` is async-signal-safe and touches no parent state.
+    unsafe {
+        command.pre_exec(|| {
+            if libc::setsid() == -1 {
+                return Err(std::io::Error::last_os_error());
+            }
+            Ok(())
+        });
+    }
+}
+
+#[cfg(not(unix))]
+fn detach_from_session(_command: &mut Command) {}
