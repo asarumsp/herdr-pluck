@@ -16,12 +16,10 @@ impl ClipboardCommandRunner for SystemCommandRunner {
         let mut command = Command::new(tool.name);
         command.args(tool.args).stdin(Stdio::piped());
         detach_from_session(&mut command);
-        let mut child = command
-            .spawn()
-            .map_err(|err| ClipboardError::SpawnFailed {
-                tool: tool.name.to_string(),
-                message: err.to_string(),
-            })?;
+        let mut child = command.spawn().map_err(|err| ClipboardError::SpawnFailed {
+            tool: tool.name.to_string(),
+            message: err.to_string(),
+        })?;
 
         if let Some(mut child_stdin) = child.stdin.take() {
             use std::io::Write;
