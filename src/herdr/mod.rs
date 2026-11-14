@@ -2,6 +2,7 @@ pub mod client;
 pub mod context;
 pub mod executor;
 pub mod layout;
+mod private_dir;
 mod protocol;
 pub mod snapshot;
 mod socket;

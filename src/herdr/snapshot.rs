@@ -1,4 +1,5 @@
 use crate::herdr::layout::{derive_source_geometry, derive_source_pane_geometries, LayoutSnapshot};
+use crate::herdr::private_dir::private_dir;
 use crate::model::{
     PaneId, PaneTextCaptureMode, PatternSpec, PickerAction, PickerReturnContext, PickerSnapshot,
     SourcePaneSnapshot, VisibleViewport,
@@ -24,10 +25,11 @@ impl PickerLaunchFiles {
     /// Allocates unique absent paths and writes the snapshot.
     pub fn create(snapshot: &PickerSnapshot) -> Result<Self> {
         let stem = unique_stem();
+        let dir = private_dir().context("failed to prepare private picker directory")?;
         let files = Self {
-            snapshot_path: std::env::temp_dir().join(format!("{stem}.json")),
-            ready_path: std::env::temp_dir().join(format!("{stem}.ready")),
-            marker_temp_path: std::env::temp_dir().join(format!("{stem}.ready.tmp")),
+            snapshot_path: dir.join(format!("{stem}.json")),
+            ready_path: dir.join(format!("{stem}.ready")),
+            marker_temp_path: dir.join(format!("{stem}.ready.tmp")),
         };
         files.cleanup()?;
         let json = serde_json::to_vec(snapshot).context("failed to serialize picker snapshot")?;
