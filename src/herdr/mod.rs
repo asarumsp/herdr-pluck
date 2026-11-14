@@ -84,7 +84,11 @@ impl HerdrAdapter {
             marker_temp_path: ready_path.with_extension("ready.tmp"),
         };
         let mut client = SocketHerdrClient::from_context(&self.context)?;
-        let primary = wait_for_ready(ready_path, Duration::from_secs(10))
+        let ready = wait_for_ready(ready_path, Duration::from_secs(10));
+        // Remove the launch files now: the snapshot is already in memory, and closing the picker
+        // tab below kills this process before any later cleanup could run.
+        let files_cleanup = files.cleanup();
+        let primary = ready
             .and_then(|_| zoom_picker(&mut client, &snapshot, &pane))
             .and_then(|_| {
                 if snapshot.session.zoom_picker {
@@ -99,7 +103,6 @@ impl HerdrAdapter {
             })
             .and_then(|_| run_snapshot_picker(&snapshot));
         let cleanup = cleanup_session(&mut client, &snapshot.session, &temp_tab);
-        let files_cleanup = files.cleanup();
         match primary {
             Err(e) => {
                 if let Err(c) = cleanup {
