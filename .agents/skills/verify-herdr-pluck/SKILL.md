@@ -29,7 +29,7 @@ $V up --no-build # reuse the current bin/herdr-pluck
 
 `up` does the following:
 
-1. Runs the plugin's real build hook in source mode: `HERDR_PLUCK_BUILD_FROM_SOURCE=1 ./scripts/install-binary.sh`.
+1. Runs the plugin's real build hook: `./scripts/install-binary.sh`.
 2. Creates `target/verify-herdr-pluck/<run-id>/` and points `target/verify-herdr-pluck/current` at it. Every later subcommand reads `current`, so separate shell calls share one run. Only one run per checkout can be active.
 3. Starts a headless `herdr server` with `XDG_CONFIG_HOME` set to a fresh `/tmp/hp.XXXXXX` directory. That gives the run its own plugin registry, plugin config dir, sockets, and sessions. The path stays short because Unix socket paths have a length limit.
 4. Puts shims first on that server's `PATH` for `pbcopy`, `wl-copy`, `xclip`, `xsel`, `open`, and `xdg-open`. Plugin actions inherit the server's environment, so the plugin's real command runners call the shims, which record what they receive.

@@ -9,9 +9,7 @@ Invoke an action while a pane is focused and type the displayed hint for the ite
 ## Requirements
 
 - Herdr 0.7.4 or newer
-- For release installs, a download tool:
-    - `curl` or `wget`
-- Rust/Cargo only when forcing a source build or when no matching prebuilt binary is available
+- Rust/Cargo: the plugin is always built from source
 - For copying, a system clipboard command:
     - macOS: `pbcopy`
     - Linux Wayland: `wl-copy`
@@ -22,36 +20,13 @@ Invoke an action while a pane is focused and type the displayed hint for the ite
 
 ## Install
 
-From the remote repository:
-
-```bash
-herdr plugin install rmarganti/herdr-pluck
-```
-
-Published releases provide prebuilt binaries for these targets:
-
-- macOS Apple Silicon: `aarch64-apple-darwin`
-- Linux x86_64: `x86_64-unknown-linux-musl`
-
-To install a specific branch, tag, or commit, pass `--ref`:
-
-```bash
-herdr plugin install rmarganti/herdr-pluck --ref main
-```
-
-Install first downloads the GitHub Release asset matching the version in `herdr-plugin.toml`. If that asset is unavailable, it falls back to a local Cargo build when Rust is available.
-
-From this checkout:
+This fork builds from source and never downloads release binaries. Clone it and link the checkout:
 
 ```bash
 herdr plugin link .
 ```
 
-By default, linking also installs the prebuilt binary matching `herdr-plugin.toml`. To build the checked-out source instead:
-
-```bash
-HERDR_PLUCK_BUILD_FROM_SOURCE=1 herdr plugin link .
-```
+Linking runs `scripts/install-binary.sh`, which runs `cargo build --release` and installs `bin/herdr-pluck`.
 
 Verify Herdr can see the action:
 
@@ -181,6 +156,6 @@ ls -l ./bin/herdr-pluck
 herdr plugin action list --plugin rmarganti.herdr-pluck
 ```
 
-If no release asset matches the plugin version, make sure Rust/Cargo is available for the local fallback build. Set `HERDR_PLUCK_BUILD_FROM_SOURCE=1` to skip the release download and build the checked-out source explicitly.
+If the build fails, make sure Rust/Cargo is available, then rerun `./scripts/install-binary.sh`.
 
 If copying fails, install one of the supported clipboard tools for your platform and try again.

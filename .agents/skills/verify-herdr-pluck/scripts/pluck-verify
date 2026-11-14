@@ -121,7 +121,7 @@ cmd_up() {
 
     if [ "$build" = 1 ]; then
         log "building bin/herdr-pluck from $REPO_ROOT"
-        (cd "$REPO_ROOT" && HERDR_PLUCK_BUILD_FROM_SOURCE=1 ./scripts/install-binary.sh)
+        (cd "$REPO_ROOT" && ./scripts/install-binary.sh)
     fi
 
     RUN_DIR="$RUNS_DIR/$(date +%Y%m%d-%H%M%S)-$$"
@@ -147,7 +147,7 @@ cmd_up() {
     done
     h workspace list >/dev/null 2>&1 || die "private Herdr never answered; see $RUN_DIR/server.out"
 
-    HERDR_PLUCK_BUILD_FROM_SOURCE=1 h plugin link "$REPO_ROOT" > "$RUN_DIR/evidence/plugin-link.json"
+    h plugin link "$REPO_ROOT" > "$RUN_DIR/evidence/plugin-link.json"
     local config_dir
     config_dir="$(h plugin config-dir "$PLUGIN_ID")"
     mkdir -p "$config_dir"
